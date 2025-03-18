@@ -2,11 +2,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-// Book class represents a book entity
 class Book {
-    private int bookId;
     private String title;
     private String author;
+    private int bookId;
     private boolean available;
 
     public Book(int bookId, String title, String author) {
@@ -35,156 +34,126 @@ class Book {
     public void setAvailable(boolean available) {
         this.available = available;
     }
-}
 
-// User class represents a library user
-class User {
-    private int userId;
-    private String name;
-
-    public User(int userId, String name) {
-        this.userId = userId;
-        this.name = name;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public String getName() {
-        return name;
+    @Override
+    public String toString() {
+        return "Book ID: " + bookId + ", Title: " + title + ", Author: " + author + ", Available: " + available;
     }
 }
 
-// Library class manages books and users
 class Library {
     private List<Book> books;
-    private List<User> users;
 
     public Library() {
         this.books = new ArrayList<>();
-        this.users = new ArrayList<>();
     }
 
     public void addBook(Book book) {
         books.add(book);
+        System.out.println("Book added successfully.");
     }
 
-    public void addUser(User user) {
-        users.add(user);
-    }
-
-    public boolean checkAvailability(Book book) {
-        return book.isAvailable();
-    }
-
-    public void borrowBook(User user, Book book) {
-        if (book.isAvailable()) {
-            book.setAvailable(false);
-            System.out.println(user.getName() + " borrowed '" + book.getTitle() + "'.");
+    public void listBooks() {
+        if (books.isEmpty()) {
+            System.out.println("No books in the library.");
         } else {
-            System.out.println("Sorry, '" + book.getTitle() + "' is not available.");
+            for (Book book : books) {
+                System.out.println(book);
+            }
         }
     }
 
-    public void returnBook(User user, Book book) {
-        if (!book.isAvailable()) {
-            book.setAvailable(true);
-            System.out.println(user.getName() + " returned '" + book.getTitle() + "'.");
+    public Book searchBookById(int bookId) {
+        for (Book book : books) {
+            if (book.getBookId() == bookId) {
+                return book;
+            }
+        }
+        return null;
+    }
+
+    public void borrowBook(int bookId) {
+        Book book = searchBookById(bookId);
+        if (book != null) {
+            if (book.isAvailable()) {
+                book.setAvailable(false);
+                System.out.println("You have successfully borrowed: " + book.getTitle());
+            } else {
+                System.out.println("The book is currently not available.");
+            }
         } else {
-            System.out.println("Error: This book is already available in the library.");
+            System.out.println("Book not found.");
+        }
+    }
+
+    public void returnBook(int bookId) {
+        Book book = searchBookById(bookId);
+        if (book != null) {
+            if (!book.isAvailable()) {
+                book.setAvailable(true);
+                System.out.println("You have successfully returned: " + book.getTitle());
+            } else {
+                System.out.println("This book was not borrowed.");
+            }
+        } else {
+            System.out.println("Book not found.");
         }
     }
 }
 
-public class LibraryManagementSystem {
+public class lms {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-
-        // Create a Library instance
         Library library = new Library();
 
-        // Adding books to the library
-        System.out.println("Enter book details:");
+        while (true) {
+            System.out.println("\nLibrary Management System");
+            System.out.println("1. Add Book");
+            System.out.println("2. List Books");
+            System.out.println("3. Borrow Book");
+            System.out.println("4. Return Book");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
 
-        Book book1 = createBookFromUserInput(scanner);
-        library.addBook(book1);
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Book ID: ");
+                    int bookId = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    System.out.print("Enter Title: ");
+                    String title = scanner.nextLine();
+                    System.out.print("Enter Author: ");
+                    String author = scanner.nextLine();
+                    library.addBook(new Book(bookId, title, author));
+                    break;
 
-        Book book2 = createBookFromUserInput(scanner);
-        library.addBook(book2);
+                case 2:
+                    library.listBooks();
+                    break;
 
-        Book book3 = createBookFromUserInput(scanner);
-        library.addBook(book3);
+                case 3:
+                    System.out.print("Enter Book ID to borrow: ");
+                    int borrowId = scanner.nextInt();
+                    library.borrowBook(borrowId);
+                    break;
 
-        Book book4 = createBookFromUserInput(scanner);
-        library.addBook(book4);
+                case 4:
+                    System.out.print("Enter Book ID to return: ");
+                    int returnId = scanner.nextInt();
+                    library.returnBook(returnId);
+                    break;
 
-        // Adding users to the library
-        System.out.println("Enter user details:");
+                case 5:
+                    System.out.println("Exiting the system. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                    break;
 
-        User user1 = createUserFromUserInput(scanner);
-        library.addUser(user1);
-
-        User user2 = createUserFromUserInput(scanner);
-        library.addUser(user2);
-
-        User user3 = createUserFromUserInput(scanner);
-        library.addUser(user3);
-
-        User user4 = createUserFromUserInput(scanner);
-        library.addUser(user4);
-
-        // Borrowing and returning books
-        library.borrowBook(user1, book1);
-        library.borrowBook(user2, book2);
-
-        library.borrowBook(user1, book1);
-        library.borrowBook(user3, book3);
-        library.borrowBook(user4, book4);
-
-        library.returnBook(user1, book1);
-        library.returnBook(user2, book2);
-        library.returnBook(user4, book4);
-        library.returnBook(user1, book1);
-
-        // Checking availability and borrowing books
-        if (library.checkAvailability(book3)) {
-            library.borrowBook(user3, book3);
-        } else {
-            System.out.println("Sorry, 'The Martian' is not available for borrowing.");
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
         }
-
-        if (library.checkAvailability(book4)) {
-            library.borrowBook(user4, book4);
-        } else {
-            System.out.println("Sorry, 'The Great Gatsby' is not available for borrowing.");
-        }
-
-        // Close the scanner
-        scanner.close();
-    }
-
-    // Helper method to create a Book from user input
-    private static Book createBookFromUserInput(Scanner scanner) {
-        System.out.print("Enter book ID: ");
-        int bookId = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
-        System.out.print("Enter book title: ");
-        String title = scanner.nextLine();
-        System.out.print("Enter book author: ");
-        String author = scanner.nextLine();
-
-        return new Book(bookId, title, author);
-    }
-
-    // Helper method to create a User from user input
-    private static User createUserFromUserInput(Scanner scanner) {
-        System.out.print("Enter user ID: ");
-        int userId = scanner.nextInt();
-        scanner.nextLine(); // Consume the newline character
-        System.out.print("Enter user name: ");
-        String name = scanner.nextLine();
-
-        return new User(userId, name);
     }
 }
+
